@@ -1,0 +1,3 @@
+JWT_SECRET = 'The secret password is password'
+
+DB_ENV = 'testing'
