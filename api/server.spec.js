@@ -60,43 +60,62 @@ describe("server", () => {
 
     // beforeAll(loginUser(auth));
 
-    // it("should respond with JSON", () => {
-    //   console.log(auth);
-    //   return request(server)
-    //     .get("/api/jokes")
-    //     .set("Authorization", `Bearer ${auth.token}`)
+    it("should respond with JSO", done => {
+      request(server)
+        .post("/api/auth/register")
+        .send({
+          username: "testing",
+          password: "1223"
+        })
+        .then(userId => {
+          console.log(userId.status);
+          request(server)
+            .post("/api/auth/login")
+            .send({
+              username: "testing",
+              password: "1223"
+            })
+            .then(user => {
+              console.log(user.body.token);
 
-    //     .then(res => {
-    //       expect(res.status).toBe(200);
-    //       expect(res.type).toBe("application/json");
-    //     });
-    // });
+              request(server)
+                .get("/api/jokes")
+                .set("Authorization", user.body.token)
+                .then(res => {
+                  console.log(res.status);
+                  expect(res.status).toBe(200);
+                  expect(res.type).toBe("application/json");
+                  done();
+                });
+            });
+        });
+    });
   });
 });
 
-// function loginUser(auth) {
-//   const user = { username: "testing", password: "12345" };
-//   const hash = bcrypt.hashSync(user.password);
-//   user.password = hash;
-//   const testUser = request(server)
-//     .post("/api/auth/register")
-//     .send({
-//       user
-//     });
-//   console.log(testUser);
-//   console.log(user);
-//   return function(done) {
-//     request(server).post("/api/auth/login", (req, res) => {
-//       Users.find(testUser.username).then(user => {
-//         if (user && bcrypt.compareSync(password, user.password)) {
-//           const token = jwt(user);
-//           console.log(token);
-//           auth.token = token;
-//           done();
-//         } else {
-//           done();
-//         }
-//       });
-//     });
-//   };
-// }
+function loginUser(auth) {
+  const user = { username: "testing", password: "12345" };
+  const hash = bcrypt.hashSync(user.password);
+  user.password = hash;
+  const testUser = request(server)
+    .post("/api/auth/register")
+    .send({
+      user
+    });
+  console.log(testUser);
+  console.log(user);
+  return function(done) {
+    request(server).post("/api/auth/login", (req, res) => {
+      Users.find(testUser.username).then(user => {
+        if (user && bcrypt.compareSync(password, user.password)) {
+          const token = jwt(user);
+          console.log(token);
+          auth.token = token;
+          done();
+        } else {
+          done();
+        }
+      });
+    });
+  };
+}
