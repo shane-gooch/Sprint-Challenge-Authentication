@@ -58,9 +58,7 @@ describe("server", () => {
         });
     });
 
-    // beforeAll(loginUser(auth));
-
-    it("should respond with JSO", done => {
+    it("should respond required Auth", done => {
       request(server)
         .post("/api/auth/register")
         .send({
@@ -92,30 +90,3 @@ describe("server", () => {
     });
   });
 });
-
-function loginUser(auth) {
-  const user = { username: "testing", password: "12345" };
-  const hash = bcrypt.hashSync(user.password);
-  user.password = hash;
-  const testUser = request(server)
-    .post("/api/auth/register")
-    .send({
-      user
-    });
-  console.log(testUser);
-  console.log(user);
-  return function(done) {
-    request(server).post("/api/auth/login", (req, res) => {
-      Users.find(testUser.username).then(user => {
-        if (user && bcrypt.compareSync(password, user.password)) {
-          const token = jwt(user);
-          console.log(token);
-          auth.token = token;
-          done();
-        } else {
-          done();
-        }
-      });
-    });
-  };
-}
